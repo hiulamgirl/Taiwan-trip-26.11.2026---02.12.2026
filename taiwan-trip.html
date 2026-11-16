@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>台灣 7 日自由行｜台中・台北旅遊手冊</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans TC"', 'sans-serif'],
+          },
+          colors: {
+            muji: {
+              bg: '#FAF8F5',       // 溫潤米白底色
+              card: '#FFFFFF',     // 純白卡片
+              text: '#2C2C2C',     // 炭黑主文字
+              muted: '#7A756E',    // 暖灰次文字
+              border: '#EAE5DC',   // 柔和邊框
+              matcha: '#6B8E78',   // 抹茶綠 (景點/伴手禮)
+              matchaBg: '#EDF3EF',
+              orange: '#D9825B',   // 暖橘色 (美食/餐廳)
+              orangeBg: '#FDF1EC',
+              blue: '#6C8EA4',     // 霧霾藍 (交通/包車)
+              blueBg: '#EEF3F7',
+              red: '#C85A53',      // 胭脂紅 (重要預約/搶購)
+              redBg: '#FBECEB',
+              sand: '#F2EDE4'      // 沙色標籤底
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #EFECE6;
+      color: #2C2C2C;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* 隱藏橫向捲軸但保留滑動功能 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* 底部安全區域適配 iPhone */
+    .pb-safe {
+      padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+    }
+    .nav-safe {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-muji-matcha selection:text-white">
+
+  <!-- 手機優先置中容器 -->
+  <div class="max-w-md mx-auto min-h-screen bg-muji-bg shadow-xl relative flex flex-col">
+
+    <!-- 頂部標題列 -->
+    <header class="sticky top-0 z-30 bg-muji-bg/95 backdrop-blur-md border-b border-muji-border px-5 pt-4 pb-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[11px] tracking-widest text-muji-muted uppercase font-medium">TAIWAN TRAVEL GUIDE</p>
+          <h1 id="header-title" class="text-xl font-bold tracking-tight text-muji-text mt-0.5">台中・台北 7日慢旅</h1>
+        </div>
+        <div class="text-right">
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-muji-sand text-muji-text">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-muji-orange"></i>
+            11/26 - 12/02
+          </span>
+        </div>
+      </div>
+
+      <!-- 每日行程專用：橫向日期選擇器 -->
+      <div id="day-selector-wrapper" class="mt-3 -mx-5 px-5 overflow-x-auto no-scrollbar flex gap-2">
+        <!-- JS 動態生成 Day 1 ~ Day 7 -->
+      </div>
+    </header>
+
+    <!-- 主內容區 -->
+    <main class="flex-1 px-4 pt-4 pb-safe overflow-y-auto">
+      
+      <!-- 分頁 1：每日行程 -->
+      <section id="tab-itinerary" class="space-y-4">
+        <!-- 天氣預報卡片 -->
+        <div id="weather-card" class="bg-white rounded-2xl p-4 border border-muji-border shadow-sm flex items-center justify-between">
+          <!-- JS 動態渲染 -->
+        </div>
+
+        <!-- 當日行程卡片列表 -->
+        <div id="itinerary-list" class="space-y-3.5">
+          <!-- JS 動態渲染 -->
+        </div>
+      </section>
+
+      <!-- 分頁 2：手信清單 -->
+      <section id="tab-souvenirs" class="hidden space-y-4">
+        <div class="bg-white rounded-2xl p-4 border border-muji-border shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="font-bold text-base flex items-center gap-2">
+              <i data-lucide="gift" class="w-4 h-4 text-muji-matcha"></i>
+              必買伴手禮清單
+            </h2>
+            <span id="souvenir-progress" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-muji-matchaBg text-muji-matcha">0 / 7 已完成</span>
+          </div>
+          <p class="text-xs text-muji-muted leading-relaxed">點擊項目可標記已購買或已預訂。特別留意標示「重要預約/搶購」的截止時間！</p>
+        </div>
+
+        <!-- 篩選按鈕 -->
+        <div class="flex gap-2 text-xs">
+          <button onclick="filterSouvenirs('all')" id="filter-all" class="px-3 py-1.5 rounded-full font-medium bg-muji-text text-white transition">全部 (7)</button>
+          <button onclick="filterSouvenirs('urgent')" id="filter-urgent" class="px-3 py-1.5 rounded-full font-medium bg-white border border-muji-border text-muji-muted transition">需預訂/搶購 (3)</button>
+          <button onclick="filterSouvenirs('pending')" id="filter-pending" class="px-3 py-1.5 rounded-full font-medium bg-white border border-muji-border text-muji-muted transition">未完成</button>
+        </div>
+
+        <!-- 清單容器 -->
+        <div id="souvenir-list" class="space-y-3">
+          <!-- JS 動態渲染 -->
+        </div>
+      </section>
+
+      <!-- 分頁 3：旅遊資訊 -->
+      <section id="tab-info" class="hidden space-y-4">
+        
+        <!-- 航班資訊 -->
+        <div class="bg-white rounded-2xl p-4 border border-muji-border shadow-sm space-y-3">
+          <h2 class="font-bold text-base flex items-center gap-2 text-muji-text">
+            <i data-lucide="plane" class="w-4 h-4 text-muji-blue"></i>
+            航班資訊 (HK Express)
+          </h2>
+          
+          <div class="p-3 rounded-xl bg-muji-blueBg/60 border border-muji-blue/20 space-y-2">
+            <div class="flex justify-between items-center text-xs font-semibold text-muji-blue">
+              <span>去程・11/26 (四)</span>
+              <span class="px-2 py-0.5 bg-white rounded-md">UO192</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-lg font-bold">07:50</div>
+                <div class="text-xs text-muji-muted">香港 HKG</div>
+              </div>
+              <div class="flex-1 flex flex-col items-center px-3">
+                <span class="text-[10px] text-muji-muted">1h 35m</span>
+                <div class="w-full h-[1px] bg-muji-blue/40 relative my-1">
+                  <i data-lucide="plane" class="w-3 h-3 text-muji-blue absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-muji-blueBg"></i>
+                </div>
+                <span class="text-[10px] text-muji-blue font-medium">直飛台中</span>
+              </div>
+              <div class="text-right">
+                <div class="text-lg font-bold">09:25</div>
+                <div class="text-xs text-muji-muted">台中 RMQ</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-muji-sand/70 border border-muji-border space-y-2">
+            <div class="flex justify-between items-center text-xs font-semibold text-muji-text">
+              <span>回程・12/02 (三)</span>
+              <span class="px-2 py-0.5 bg-white rounded-md">UO117</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-lg font-bold">21:15</div>
+                <div class="text-xs text-muji-muted">台北桃園 TPE</div>
+              </div>
+              <div class="flex-1 flex flex-col items-center px-3">
+                <span class="text-[10px] text-muji-muted">2h 10m</span>
+                <div class="w-full h-[1px] bg-muji-muted/40 relative my-1">
+                  <i data-lucide="plane" class="w-3 h-3 text-muji-muted absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-muji-sand"></i>
+                </div>
+                <span class="text-[10px] text-muji-muted font-medium">直飛香港</span>
+              </div>
+              <div class="text-right">
+                <div class="text-lg font-bold">23:25</div>
+                <div class="text-xs text-muji-muted">香港 HKG</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 住宿資訊 -->
+        <div class="bg-white rounded-2xl p-4 border border-muji-border shadow-sm space-y-3">
+          <h2 class="font-bold text-base flex items-center gap-2 text-muji-text">
+            <i data-lucide="bed-double" class="w-4 h-4 text-muji-orange"></i>
+            住宿資訊
+          </h2>
+
+          <!-- 台中住宿 (可自訂編輯) -->
+          <div class="p-3.5 rounded-xl bg-muji-bg border border-muji-border space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-semibold text-muji-orange">11/26 - 11/29 (3晚)・台中</span>
+              <button onclick="toggleEditTaichungHotel()" class="text-xs text-muji-muted underline flex items-center gap-1">
+                <i data-lucide="edit-3" class="w-3 h-3"></i> 編輯
+              </button>
+            </div>
+            <div id="taichung-hotel-display">
+              <div class="font-bold text-sm" id="tc-hotel-name">尚未填寫台中飯店名稱</div>
+              <div class="text-xs text-muji-muted mt-0.5" id="tc-hotel-addr">點擊右上角「編輯」輸入飯店地址與訂房代號</div>
+            </div>
+            <div id="taichung-hotel-edit" class="hidden space-y-2 pt-1">
+              <input type="text" id="input-tc-name" placeholder="輸入飯店名稱（如：逢甲/勤美周邊飯店）" class="w-full text-xs p-2 rounded-lg border border-muji-border bg-white">
+              <input type="text" id="input-tc-addr" placeholder="輸入地址或訂房代號" class="w-full text-xs p-2 rounded-lg border border-muji-border bg-white">
+              <button onclick="saveTaichungHotel()" class="w-full py-1.5 bg-muji-text text-white text-xs rounded-lg font-medium">儲存住宿資訊</button>
+            </div>
+          </div>
+
+          <!-- 台北住宿 -->
+          <div class="p-3.5 rounded-xl bg-muji-bg border border-muji-border space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-semibold text-muji-matcha">11/29 - 12/02 (3晚)・台北</span>
+              <a href="https://www.google.com/maps/search/?api=1&query=蜂巢旅館+台北市大同區太原路57號" target="_blank" class="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-white border border-muji-border text-muji-text shadow-xs active:scale-95 transition">
+                <i data-lucide="navigation" class="w-3 h-3 text-muji-blue"></i> 導航
+              </a>
+            </div>
+            <div>
+              <div class="font-bold text-sm">蜂巢旅館 Bee House</div>
+              <div class="text-xs text-muji-muted mt-0.5">台北市大同區太原路57號（近台北車站 / 寧夏夜市）</div>
+              <div class="text-[11px] text-muji-matcha mt-1 font-medium">✓ 12/02 09:30 退房並寄放行李</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 緊急聯絡電話 -->
+        <div class="bg-white rounded-2xl p-4 border border-muji-border shadow-sm space-y-3">
+          <h2 class="font-bold text-base flex items-center gap-2 text-muji-text">
+            <i data-lucide="phone-call" class="w-4 h-4 text-muji-red"></i>
+            緊急聯絡電話
+          </h2>
+          <div class="divide-y divide-muji-border text-sm">
+            <div class="py-2.5 flex justify-between items-center">
+              <div>
+                <div class="font-semibold">台灣報警專線</div>
+                <div class="text-xs text-muji-muted">治安事故、遺失物品報案</div>
+              </div>
+              <a href="tel:110" class="px-3 py-1.5 rounded-xl bg-muji-redBg text-muji-red font-bold text-sm">110</a>
+            </div>
+            <div class="py-2.5 flex justify-between items-center">
+              <div>
+                <div class="font-semibold">救護車 / 火警</div>
+                <div class="text-xs text-muji-muted">緊急醫療救護</div>
+              </div>
+              <a href="tel:119" class="px-3 py-1.5 rounded-xl bg-muji-redBg text-muji-red font-bold text-sm">119</a>
+            </div>
+            <div class="py-2.5 flex justify-between items-center">
+              <div>
+                <div class="font-semibold">外國人在台生活諮詢熱線</div>
+                <div class="text-xs text-muji-muted">24小時中/粵/英旅遊與生活協助</div>
+              </div>
+              <a href="tel:1990" class="px-3 py-1.5 rounded-xl bg-muji-sand text-muji-text font-bold text-sm">1990</a>
+            </div>
+            <div class="py-2.5 flex justify-between items-center">
+              <div>
+                <div class="font-semibold">香港入境處 24小時求助熱線</div>
+                <div class="text-xs text-muji-muted">協助在外香港居民小組</div>
+              </div>
+              <a href="tel:+8521868" class="px-3 py-1.5 rounded-xl bg-muji-sand text-muji-text font-bold text-xs">+852 1868</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 分頁 4：記帳本 -->
+      <section id="tab-budget" class="hidden space-y-4">
+        <!-- 總覽卡片 -->
+        <div class="bg-muji-text text-white rounded-2xl p-5 shadow-md space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-gray-300">總支出估算 (匯率 1 HKD ≈ 4.1 TWD)</span>
+            <span class="text-[11px] px-2 py-0.5 rounded bg-white/10">自動儲存於本機</span>
+          </div>
+          <div class="flex items-baseline justify-between pt-1">
+            <div>
+              <div class="text-xs text-gray-400">新台幣 (TWD)</div>
+              <div class="text-2xl font-bold tracking-tight mt-0.5">NT$ <span id="total-twd">0</span></div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-gray-400">約合港幣 (HKD)</div>
+              <div class="text-xl font-bold text-muji-orange mt-0.5">HK$ <span id="total-hkd">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 新增消費表單 -->
+        <div class="bg-white rounded-2xl p-4 border border-muji-border shadow-sm space-y-3">
+          <h3 class="font-bold text-sm flex items-center gap-1.5">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-muji-orange"></i>
+            新增一筆消費
+          </h3>
+          <div class="grid grid-cols-3 gap-2">
+            <select id="expense-category" class="col-span-1 text-xs p-2.5 rounded-xl border border-muji-border bg-muji-bg font-medium">
+              <option value="美食">🍜 美食</option>
+              <option value="交通">🚗 交通</option>
+              <option value="手信">🎁 手信</option>
+              <option value="購物">🛍️ 購物</option>
+              <option value="其他">📝 其他</option>
+            </select>
+            <input type="text" id="expense-name" placeholder="項目名稱 (如：茶六燒肉)" class="col-span-2 text-xs p-2.5 rounded-xl border border-muji-border bg-muji-bg">
+          </div>
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muji-muted">NT$</span>
+              <input type="number" id="expense-amount" placeholder="輸入台幣金額" class="w-full text-sm font-semibold pl-11 pr-3 py-2.5 rounded-xl border border-muji-border bg-muji-bg">
+            </div>
+            <button onclick="addExpense()" class="px-5 py-2.5 bg-muji-orange text-white text-xs font-bold rounded-xl shadow-xs active:scale-95 transition">
+              記一筆
+            </button>
+          </div>
+        </div>
+
+        <!-- 消費明細列表 -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center px-1">
+            <h3 class="text-xs font-bold text-muji-muted">消費明細紀錄</h3>
+            <button onclick="clearExpenses()" class="text-[11px] text-muji-red hover:underline">清空全部</button>
+          </div>
+          <div id="expense-list" class="space-y-2">
+            <!-- JS 動態渲染 -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 底部固定導航欄 -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/95 backdrop-blur-md border-t border-muji-border nav-safe z-40">
+      <div class="grid grid-cols-4 h-16">
+        <button onclick="switchTab('itinerary')" id="nav-itinerary" class="flex flex-col items-center justify-center gap-1 text-muji-orange font-bold transition">
+          <i data-lucide="map" class="w-5 h-5"></i>
+          <span class="text-[11px]">每日行程</span>
+        </button>
+        <button onclick="switchTab('souvenirs')" id="nav-souvenirs" class="flex flex-col items-center justify-center gap-1 text-muji-muted font-medium transition">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <span class="text-[11px]">手信清單</span>
+        </button>
+        <button onclick="switchTab('info')" id="nav-info" class="flex flex-col items-center justify-center gap-1 text-muji-muted font-medium transition">
+          <i data-lucide="info" class="w-5 h-5"></i>
+          <span class="text-[11px]">旅遊資訊</span>
+        </button>
+        <button onclick="switchTab('budget')" id="nav-budget" class="flex flex-col items-center justify-center gap-1 text-muji-muted font-medium transition">
+          <i data-lucide="wallet" class="w-5 h-5"></i>
+          <span class="text-[11px]">記帳本</span>
+        </button>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- 資料庫與互動邏輯 -->
+  <script>
+    // 1. 完整 7 日行程資料
+    const itineraryData = [
+      {
+        day: 1,
+        date: "11/26 (四)",
+        city: "台中",
+        title: "台中海線與高美夕陽",
+        weather: {
+          icon: "sun",
+          temp: "19°C - 25°C",
+          rain: "10%",
+          desc: "晴時多雲・海邊風大",
+          tip: "高美濕地傍晚海風強勁，務必攜帶防風外套或圍巾。"
+        },
+        items: [
+          {
+            time: "07:50 - 09:25",
+            type: "transport",
+            title: "香港 (HKG) ➔ 台中 (RMQ)",
+            location: "臺中國際機場",
+            tags: [{ type: "urgent", text: "航班 UO192" }],
+            guide: "抵達台中清泉崗機場後辦理入境、領取行李及兌換台幣/領取網卡。"
+          },
+          {
+            time: "10:00",
+            type: "transport",
+            title: "包車接送開始",
+            location: "臺中國際機場",
+            tags: [{ type: "urgent", text: "準時會合" }],
+            guide: "海線景點之間大眾運輸較不便，包車可大幅節省等車時間並方便放置行李。"
+          },
+          {
+            time: "10:30 - 13:00",
+            type: "food",
+            title: "梧棲漁港（買海鮮 + 吃午餐）",
+            location: "梧棲觀光漁港 台中",
+            tags: [{ type: "food", text: "必吃：現撈生魚片・代客料理" }],
+            guide: "台中最大觀光漁市！可先在鮮魚區挑選活海鮮（花蟹、海蝦、蛤蜊），再到餐廳區付費代客料理，新鮮又划算。"
+          },
+          {
+            time: "13:15 - 14:30",
+            type: "food",
+            title: "洋記豆品 + 奕陞咖啡",
+            location: "奕陞咖啡 台中",
+            tags: [{ type: "souvenir", text: "必買：聰明濾杯 (Clever Dripper)" }],
+            guide: "台中在地精品咖啡與豆品店，專程入手台灣專利設計的「聰明濾杯」，結合法壓壺與手沖優點。"
+          },
+          {
+            time: "14:30 - 15:00",
+            type: "food",
+            title: "美村路胡椒餅",
+            location: "美村路胡椒餅 台中",
+            tags: [{ type: "food", text: "必吃：炭烤蔥肉胡椒餅" }],
+            guide: "外皮酥脆帶有炭火焦香，內餡使用滿滿三星蔥與醃製豬肉塊，咬下會爆汁，小心燙口！"
+          },
+          {
+            time: "15:45 - 16:30",
+            type: "spot",
+            title: "東海大學 路思義教堂",
+            location: "東海大學路思義教堂 台中",
+            tags: [{ type: "urgent", text: "開放時間 16:00 – 18:00" }],
+            guide: "建築大師貝聿銘設計的經典雙曲拋物面無柱建築，下午斜陽灑在金黃色琉璃瓦上最適合拍照。"
+          },
+          {
+            time: "16:45 - 17:00",
+            type: "spot",
+            title: "高美濕地（絕美日落）",
+            location: "高美濕地木棧道 台中",
+            tags: [{ type: "urgent", text: "日落時間約 17:00" }],
+            guide: "被譽為「一生必遊一次」的台灣天空之鏡！建議 16:30 前走上木棧道卡位，欣賞風車與夕陽倒映在濕地水面。"
+          },
+          {
+            time: "17:30 - 晚上",
+            type: "food",
+            title: "中港夜市",
+            location: "中港夜市 台中",
+            tags: [{ type: "food", text: "在地夜市小吃" }],
+            guide: "海線在地人逛的傳統夜市，攤位集中，適合晚餐隨意掃街品嚐台灣道地小吃。"
+          }
+        ]
+      },
+      {
+        day: 2,
+        date: "11/27 (五)",
+        city: "台中",
+        title: "台中人氣燒肉與商圈購物",
+        weather: {
+          icon: "cloud-sun",
+          temp: "18°C - 26°C",
+          rain: "10%",
+          desc: "多雲時晴・舒適宜人",
+          tip: "日夜溫差約 8 度，建議洋蔥式穿搭方便進出冷氣商場。"
+        },
+        items: [
+          {
+            time: "10:00 - 11:00",
+            type: "food",
+            title: "蘇媽媽蛋餅",
+            location: "蘇媽媽蛋餅 台中",
+            tags: [{ type: "food", text: "必點：古早味粉漿蛋餅" }],
+            guide: "台中超人氣傳統粉漿蛋餅！餅皮厚實軟Q帶微焦香，推薦搭配店家特製辣椒醬油與紅茶。"
+          },
+          {
+            time: "11:00 - 13:00",
+            type: "spot",
+            title: "COSTCO 好市多（台中店）",
+            location: "好市多 台中南屯店",
+            tags: [{ type: "souvenir", text: "提醒：記得帶會員卡" }],
+            guide: "採購台灣限定大包裝零食、保健品或高蛋白點心，注意結帳僅接受聯名信用卡或現金。"
+          },
+          {
+            time: "13:30 - 15:00",
+            type: "food",
+            title: "茶六燒肉堂",
+            location: "茶六燒肉堂 台中",
+            tags: [
+              { type: "urgent", text: "務必準時報到" },
+              { type: "food", text: "必點：極黑和牛套餐・山藥・鮭魚味噌湯" }
+            ],
+            guide: "輕井澤集團旗下台中必吃燒肉！推薦點雙人套餐，肉質鮮嫩、附贈的鮭魚味噌湯料多味美，餐後還有雪花冰。"
+          },
+          {
+            time: "15:30 - 17:30",
+            type: "spot",
+            title: "彈性自由空檔（咖啡廳 / 休憩）",
+            location: "台中中友百貨",
+            tags: [{ type: "spot", text: "自由調整時間" }],
+            guide: "剛吃完豐盛燒肉，可先回飯店小憩，或提前前往一中商圈/中友百貨周邊咖啡廳休息消化。"
+          },
+          {
+            time: "17:30 - 19:30",
+            type: "spot",
+            title: "Bonjour 女鞋 + Tcf.大振豐洋傘",
+            location: "中友百貨 台中",
+            tags: [{ type: "souvenir", text: "中友百貨 C棟 4F" }],
+            guide: "台灣人氣好穿女鞋品牌 Bonjour，同場可逛台灣老字號「大振豐洋傘」，挑選輕量抗UV晴雨兩用傘。"
+          },
+          {
+            time: "19:30 - 21:30",
+            type: "food",
+            title: "Tcf.大振豐洋傘 + 一中街夜市",
+            location: "一中街夜市 台中",
+            tags: [{ type: "food", text: "必吃：天使雞排・豐仁冰・打餅舖烙餅" }],
+            guide: "台中學生族群最愛的一中商圈，除了美食小吃密集，周邊也有許多服飾與小店可繼續逛。"
+          }
+        ]
+      },
+      {
+        day: 3,
+        date: "11/28 (六)",
+        city: "台中",
+        title: "老宅文創、甜點與溫體牛",
+        weather: {
+          icon: "sun",
+          temp: "19°C - 26°C",
+          rain: "20%",
+          desc: "晴朗微風・適合散步",
+          tip: "審計新村與草悟道皆為戶外步行區，穿好走的鞋子最輕鬆。"
+        },
+        items: [
+          {
+            time: "上午",
+            type: "food",
+            title: "向上市場",
+            location: "向上市場 台中",
+            tags: [{ type: "food", text: "必吃：在來碗粿・炸粿・太祖魷魚羹" }],
+            guide: "充滿人情味的台中傳統早市，藏有許多排隊銅板老店，適合體驗道地台灣早餐文化。"
+          },
+          {
+            time: "午餐",
+            type: "food",
+            title: "尚牛二館（台灣溫體牛肉湯）",
+            location: "尚牛二館 台中",
+            tags: [
+              { type: "urgent", text: "僅現場候位・建議提早抽號碼牌" },
+              { type: "food", text: "必點：嫩牛肉盤・超嫩牛舌・芥蘭牛肉" }
+            ],
+            guide: "連續多年獲得米其林必比登推介！每日新鮮直送溫體牛，只需在滾燙蔬果牛骨湯中輕涮 3-5 秒呈現粉紅色即可入口。"
+          },
+          {
+            time: "下午",
+            type: "spot",
+            title: "勤美誠品草悟道 / 審計新村",
+            location: "審計新村 台中",
+            tags: [{ type: "food", text: "必吃：L.Z. DESSART 無框架甜點" }],
+            guide: "審計新村由老舊省府宿舍改建，週末有熱鬧文創市集；順道朝聖世界甜點冠軍陳立喆的「L.Z. DESSART」，必點藝術品般的擬真甜點。"
+          },
+          {
+            time: "傍晚",
+            type: "spot",
+            title: "原子按摩",
+            location: "原子按摩 台中",
+            tags: [{ type: "spot", text: "舒壓放鬆行程" }],
+            guide: "走了一整天市集與商圈，安排台式腳底或全身經絡按摩徹底釋放雙腿疲勞。"
+          },
+          {
+            time: "晚上",
+            type: "food",
+            title: "旱溪夜市",
+            location: "旱溪夜市 台中",
+            tags: [{ type: "food", text: "必吃：方臉師傅豆干・波蘭手工蛋糕・正豐原祖傳鳳梨冰" }],
+            guide: "週六限定營業的台中超人氣大型夜市！占地廣闊、美食重複率低，是台中人心目中的夜市霸主。"
+          }
+        ]
+      },
+      {
+        day: 4,
+        date: "11/29 (日)",
+        city: "台北",
+        title: "北上台北・大稻埕與赤峰街",
+        weather: {
+          icon: "cloud",
+          temp: "17°C - 22°C",
+          rain: "30%",
+          desc: "多雲微涼・北部轉涼",
+          tip: "台北氣溫比台中低約 3-4 度，建議隨身攜帶摺疊傘與薄長袖。"
+        },
+        items: [
+          {
+            time: "早餐",
+            type: "food",
+            title: "台中早餐 + BAGEL EXPRESSO",
+            location: "BAGEL EXPRESSO 台中",
+            tags: [{ type: "souvenir", text: "外帶車上點心" }],
+            guide: "出發前往台北前先買好手工貝果，口感紮實有嚼勁，適合帶上高鐵或客運享用。"
+          },
+          {
+            time: "上午",
+            type: "food",
+            title: "Ritrovare coffee 尋品・旬品咖啡",
+            location: "Ritrovare coffee 尋品旬品咖啡 台中",
+            tags: [{ type: "food", text: "自家烘焙精品咖啡" }],
+            guide: "台中質感自家烘焙咖啡館，在離開台中前喝一杯冠軍級手沖或拿鐵。"
+          },
+          {
+            time: "中午移動",
+            type: "transport",
+            title: "台中 ➔ 台北・蜂巢旅館 Check-in",
+            location: "蜂巢旅館 台北市大同區太原路57號",
+            tags: [{ type: "urgent", text: "15:00 後可入住（可先寄行李）" }],
+            guide: "抵達台北車站後步行約 8 分鐘即可抵達蜂巢旅館，位置極佳，鄰近寧夏夜市與中山商圈。"
+          },
+          {
+            time: "下午美食巡禮",
+            type: "food",
+            title: "大稻埕・延三排隊美食與甜點",
+            location: "大稻埕魯肉飯 台北",
+            tags: [
+              { type: "urgent", text: "雪系町需預訂 / 福元胡椒餅建議先電話預約" },
+              { type: "food", text: "大稻埕魯肉飯・阿斌芋圓・阿洋義式冰淇淋" }
+            ],
+            guide: "• 雪系町：超人氣爆餡杜拜朱古力甜甜圈。\n• 福元胡椒餅：出爐時間固定，建議先打電話預留。\n• 大稻埕魯肉飯：半熟荷包蛋配膠質滿滿魯肉飯，需預留排隊時間。"
+          },
+          {
+            time: "下午漫步",
+            type: "spot",
+            title: "中山站 赤峰街漫步",
+            location: "赤峰街 台北",
+            tags: [{ type: "food", text: "必吃：吉依卡哇 (Chiikawa) 大判燒" }],
+            guide: "台北最文青的街區，老宅巷弄間充滿選物店、古著與咖啡廳，別忘了去買可愛爆表的吉依卡哇造型大判燒！"
+          },
+          {
+            time: "傍晚",
+            type: "spot",
+            title: "大稻埕 / 迪化街",
+            location: "迪化街一段 台北",
+            tags: [{ type: "souvenir", text: "南北貨・文創小店・巴洛克老街" }],
+            guide: "走訪百年歷史的閩南與巴洛克式建築街屋，許多傳統茶行、漢餅鋪都轉型成精緻文創店。"
+          },
+          {
+            time: "晚上",
+            type: "food",
+            title: "寧夏夜市",
+            location: "寧夏夜市 台北",
+            tags: [{ type: "food", text: "必吃：劉芋仔蛋黃芋餅・方家雞肉飯・圓環邊蚵仔煎" }],
+            guide: "距離蜂巢旅館步行僅約 6 分鐘！台北美食密度最高的夜市，多間攤商獲米其林必比登推薦。"
+          }
+        ]
+      },
+      {
+        day: 5,
+        date: "11/30 (一)",
+        city: "台北",
+        title: "101 高空 Buffet 與西門町",
+        weather: {
+          icon: "cloud-rain",
+          temp: "17°C - 21°C",
+          rain: "40%",
+          desc: "陰天偶陣雨",
+          tip: "早上在台北 101 室內用餐不受天氣影響，下午出門記得帶傘。"
+        },
+        items: [
+          {
+            time: "10:45 - 15:00",
+            type: "food",
+            title: "饗 A Joy 自助餐（台北 101 86樓）",
+            location: "饗 A Joy 台北101",
+            tags: [
+              { type: "urgent", text: "提前 15 分鐘至 101 辦公大樓報到" },
+              { type: "food", text: "必吃：現開生蠔・帝王蟹腳・A5和牛握壽司・興波咖啡" }
+            ],
+            guide: "全台最高景觀頂級 Buffet！共有八大餐區，建議一入場先攻海鮮日料區與現煎鐵板區，甜點區還吃得到世界冠軍「興波咖啡」與「法朋」聯名甜點。"
+          },
+          {
+            time: "下午",
+            type: "spot",
+            title: "信義商圈逛街消化",
+            location: "信義商圈 台北",
+            tags: [{ type: "spot", text: "空橋連通百貨群" }],
+            guide: "吃飽後剛好在信義區空橋散步消化，新光三越 A4-A11、微風南山、誠品松菸皆在步行範圍內。"
+          },
+          {
+            time: "傍晚",
+            type: "spot",
+            title: "西門町商圈",
+            location: "西門町 台北",
+            tags: [{ type: "souvenir", text: "潮流服飾・伴手禮・Pop Mart" }],
+            guide: "搭乘捷運板南線直達西門站，感受台北最熱鬧的流行文化與街頭藝人表演。"
+          },
+          {
+            time: "晚上",
+            type: "food",
+            title: "南機場夜市",
+            location: "南機場夜市 台北",
+            tags: [{ type: "food", text: "必吃：山內雞肉・來來水餃・八棟圓仔湯・無名推車燒餅" }],
+            guide: "雖然名字叫機場但沒有捷運直達（建議從西門町搭計程車約 8 分鐘），是老台北人公認最強的米其林小吃寶庫！"
+          }
+        ]
+      },
+      {
+        day: 6,
+        date: "12/01 (二)",
+        city: "台北",
+        title: "經典紫米飯糰與道地台菜",
+        weather: {
+          icon: "cloud-sun",
+          temp: "18°C - 23°C",
+          rain: "20%",
+          desc: "多雲時晴・舒適",
+          tip: "適合室內外穿插的清爽天氣。"
+        },
+        items: [
+          {
+            time: "10:00 - 11:00",
+            type: "food",
+            title: "劉媽媽飯糰",
+            location: "劉媽媽飯糰 台北中正區",
+            tags: [{ type: "food", text: "必點：招牌紫米飯糰・滷蛋" }],
+            guide: "台北排隊名店！Q彈紫米包入老油條、菜脯、肉鬆與酸菜，份量紮實，一顆就能飽到中午。"
+          },
+          {
+            time: "上午",
+            type: "food",
+            title: "COFFEE SINB",
+            location: "COFFEE SINB 台北",
+            tags: [{ type: "food", text: "質感咖啡休憩" }],
+            guide: "吃完傳統飯糰後，來杯順口精品咖啡與小點心享受悠閒早晨。"
+          },
+          {
+            time: "午餐",
+            type: "food",
+            title: "有有 1969 台菜 / 備案：竣師父牛肉麵",
+            location: "有有1969 台北",
+            tags: [
+              { type: "urgent", text: "有有1969 需 14 日前訂位" },
+              { type: "food", text: "復古創意台菜料理" }
+            ],
+            guide: "主打精緻復古台灣菜，環境充滿懷舊韻味；若未訂到位，備案「竣師父牛肉麵」湯頭濃郁、肉塊厚實也是極佳選擇。"
+          },
+          {
+            time: "下午",
+            type: "spot",
+            title: "台北地下街",
+            location: "台北地下街 Y區",
+            tags: [{ type: "spot", text: "扭蛋・動漫周邊・風雨無阻" }],
+            guide: "Y區聚集大量扭蛋機、一番賞與動漫公仔店，就在蜂巢旅館附近，逛累了隨時能回飯店放戰利品。"
+          },
+          {
+            time: "晚上",
+            type: "food",
+            title: "樂華夜市",
+            location: "樂華夜市 新北永和",
+            tags: [{ type: "food", text: "必吃：官記純檸檬泰式涼拌木瓜・阿爸の芋圓・郭記麻辣臭豆腐" }],
+            guide: "搭捷運中和新蘆線至「頂溪站」步行約 8 分鐘，整條街美食種類豐富，特別推薦獨創的「蔗片冰」阿爸の芋圓！"
+          }
+        ]
+      },
+      {
+        day: 7,
+        date: "12/02 (三)",
+        city: "台北",
+        title: "詹記麻辣鍋・最後採購返港",
+        weather: {
+          icon: "sun",
+          temp: "18°C - 24°C",
+          rain: "10%",
+          desc: "晴朗好天氣・完美收尾",
+          tip: "最後一天採買手信記得預留行李箱空間與重量，18:30 準時搭機捷！"
+        },
+        items: [
+          {
+            time: "09:30",
+            type: "transport",
+            title: "蜂巢旅館退房並寄放行李",
+            location: "蜂巢旅館 台北市大同區太原路57號",
+            tags: [{ type: "urgent", text: "退房寄行李" }],
+            guide: "整理好前 6 天的戰利品，將大件行李寄放於櫃檯，輕裝出發最後一天行程。"
+          },
+          {
+            time: "早餐",
+            type: "food",
+            title: "台北豆漿店 + 甜境",
+            location: "甜境 台北",
+            tags: [{ type: "souvenir", text: "必買：甜境牛軋餅" }],
+            guide: "早晨先享用熱騰騰的台式燒餅油條與豆漿，順道取/買超人氣「甜境」牛軋餅。"
+          },
+          {
+            time: "12:30 - 14:15",
+            type: "food",
+            title: "詹記麻辣火鍋",
+            location: "詹記麻辣火鍋 台北",
+            tags: [
+              { type: "urgent", text: "已訂位・準時入場" },
+              { type: "food", text: "必點：果凍鴨血・豆腐・台灣松阪豬・大腸頭・白菊烏梅汁" }
+            ],
+            guide: "台北最難訂的復古台式麻辣鍋！靈魂是滑嫩如布丁的「果凍鴨血」與入味豆腐，記得加點科學麵吸滿湯汁。"
+          },
+          {
+            time: "14:30 - 16:45",
+            type: "spot",
+            title: "最後衝刺買手信",
+            location: "台北車站",
+            tags: [{ type: "souvenir", text: "核對「手信清單」分頁" }],
+            guide: "利用最後兩小時把清單上的鳳梨酥、起司蛋糕、預訂麵包一次收齊！"
+          },
+          {
+            time: "17:00 - 17:50",
+            type: "food",
+            title: "富宏牛肉麵（上機前最後一碗）",
+            location: "富宏牛肉麵 台北萬華區洛陽街",
+            tags: [{ type: "food", text: "必加：牛油・酸菜・免費汽水" }],
+            guide: "24 小時營業的高 CP 值老字號！桌上有橘色（辣）與白色（原味）牛油，挖一匙拌入湯頭香氣瞬間升級。"
+          },
+          {
+            time: "18:00 - 18:15",
+            type: "transport",
+            title: "回蜂巢旅館取行李",
+            location: "蜂巢旅館 台北市大同區太原路57號",
+            tags: [{ type: "urgent", text: "清點隨身物品與護照" }],
+            guide: "領取寄放行李並把所有手信裝箱打包。"
+          },
+          {
+            time: "18:30 - 19:15",
+            type: "transport",
+            title: "桃園機場捷運 ➔ 桃園機場 (TPE)",
+            location: "機場捷運台北車站 A1",
+            tags: [{ type: "urgent", text: "搭乘直達車（紫色車廂）約 35 分鐘" }],
+            guide: "從旅館步行至機捷 A1 台北車站（近北門方向），搭乘直達車前往桃園機場第一航廈（HK Express 櫃檯）。"
+          },
+          {
+            time: "21:15 - 23:25",
+            type: "transport",
+            title: "台北 (TPE) ➔ 香港 (HKG)",
+            location: "臺灣桃園國際機場第一航廈",
+            tags: [{ type: "urgent", text: "航班 UO117・平安返港" }],
+            guide: "建議 19:15 前抵達機場辦理登機託運，預留時間逛免稅店或使用貴賓室。"
+          }
+        ]
+      }
+    ];
+
+    // 2. 手信清單資料
+    const defaultSouvenirs = [
+      {
+        id: "s1",
+        name: "甜滿 / 甜境（牛軋餅）",
+        urgent: false,
+        tag: "人氣必買",
+        note: "備註：甜境更好吃！餅乾酥脆、內餡不黏牙，建議當日購買或確認保存期限。",
+        checked: false
+      },
+      {
+        id: "s2",
+        name: "承繼 (CHENG JI) 焦糖起司蛋糕",
+        urgent: false,
+        tag: "精緻甜點",
+        note: "招牌「-18°C 焦糖起司蛋糕」口感如雪糕般綿密，注意攜帶回港的保冷時間。",
+        checked: false
+      },
+      {
+        id: "s3",
+        name: "手工老麵饅頭",
+        urgent: false,
+        tag: "AI 推薦店家中",
+        note: "尚未決定店家，推薦：①「一之軒 / 姜太太包子店（忠孝復興）」②「福圓號真食材手工饅頭（多間分店，推薦雜糧起司、黑糖桂圓）」。",
+        checked: false
+      },
+      {
+        id: "s4",
+        name: "台灣鳳梨酥",
+        urgent: false,
+        tag: "AI 推薦名店",
+        note: "尚未決定店家，依口味推薦：①傳統冬瓜餡選「佳德糕餅」②蛋黃鳳凰酥選「小潘蛋糕坊」③微酸土鳳梨餡選「微熱山丘」。",
+        checked: false
+      },
+      {
+        id: "s5",
+        name: "Celebread 酸種麵包",
+        urgent: true,
+        tag: "出發/取貨 5 日前預訂",
+        note: "重要提醒：需提前 5 天向店家預訂口味與取貨日期，以免現場完售。",
+        checked: false
+      },
+      {
+        id: "s6",
+        name: "台灣蛋白粉",
+        urgent: true,
+        tag: "14 日前預訂",
+        note: "重要提醒：最遲於出發/收貨前 14 天完成下單，可寄送至台灣飯店代收。",
+        checked: false
+      },
+      {
+        id: "s7",
+        name: "Rayyatreats 朱古力",
+        urgent: true,
+        tag: "逢星期五 12:30 準時開搶",
+        note: "超搶手手工朱古力！務必設定手機鬧鐘，星期五中午 12:30 準時搶購。",
+        checked: false
+      }
+    ];
+
+    // 狀態管理
+    let currentDay = 1;
+    let currentTab = 'itinerary';
+    let souvenirFilter = 'all';
+    let souvenirs = JSON.parse(localStorage.getItem('tw_trip_souvenirs')) || defaultSouvenirs;
+    let expenses = JSON.parse(localStorage.getItem('tw_trip_expenses')) || [
+      { id: 1, category: '美食', name: '詹記麻辣火鍋 (預估)', amount: 2400 },
+      { id: 2, category: '交通', name: '台中包車一日遊 (預估)', amount: 3500 }
+    ];
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDaySelector();
+      renderItinerary(currentDay);
+      renderSouvenirs();
+      loadTaichungHotel();
+      renderExpenses();
+      lucide.createIcons();
+    });
+
+    // 切換主分頁
+    function switchTab(tabName) {
+      currentTab = tabName;
+      const tabs = ['itinerary', 'souvenirs', 'info', 'budget'];
+      const titles = {
+        itinerary: '台中・台北 7日慢旅',
+        souvenirs: '手信採購清單',
+        info: '航班・住宿・緊急聯絡',
+        budget: '旅費記帳本'
+      };
+
+      document.getElementById('header-title').innerText = titles[tabName];
+
+      // 只有「每日行程」顯示日期滑動列
+      const dayWrapper = document.getElementById('day-selector-wrapper');
+      if (tabName === 'itinerary') {
+        dayWrapper.classList.remove('hidden');
+      } else {
+        dayWrapper.classList.add('hidden');
+      }
+
+      tabs.forEach(t => {
+        const section = document.getElementById(`tab-${t}`);
+        const navBtn = document.getElementById(`nav-${t}`);
+        if (t === tabName) {
+          section.classList.remove('hidden');
+          navBtn.classList.remove('text-muji-muted', 'font-medium');
+          navBtn.classList.add('text-muji-orange', 'font-bold');
+        } else {
+          section.classList.add('hidden');
+          navBtn.classList.remove('text-muji-orange', 'font-bold');
+          navBtn.classList.add('text-muji-muted', 'font-medium');
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    // 渲染日期選擇器
+    function renderDaySelector() {
+      const container = document.getElementById('day-selector-wrapper');
+      container.innerHTML = itineraryData.map(d => {
+        const isActive = d.day === currentDay;
+        return `
+          <button onclick="selectDay(${d.day})" 
+            class="flex-shrink-0 px-3.5 py-2 rounded-xl border text-left transition-all ${
+              isActive 
+                ? 'bg-muji-text text-white border-muji-text shadow-xs' 
+                : 'bg-white text-muji-text border-muji-border hover:bg-muji-sand/50'
+            }">
+            <div class="text-[10px] font-medium ${isActive ? 'text-gray-300' : 'text-muji-muted'}">Day ${d.day}・${d.city}</div>
+            <div class="text-xs font-bold mt-0.5">${d.date}</div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectDay(day) {
+      currentDay = day;
+      renderDaySelector();
+      renderItinerary(day);
+      lucide.createIcons();
+    }
+
+    // 渲染單日行程與天氣
+    function renderItinerary(dayNum) {
+      const data = itineraryData.find(d => d.day === dayNum);
+      if (!data) return;
+
+      // 1. 渲染天氣卡片
+      const weatherCard = document.getElementById('weather-card');
+      weatherCard.innerHTML = `
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-muji-sand flex items-center justify-center text-muji-orange flex-shrink-0">
+            <i data-lucide="${data.weather.icon}" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-sm text-muji-text">${data.city}天氣預報</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-muji-bg text-muji-text">${data.weather.temp}</span>
+              <span class="text-[11px] text-muji-blue font-medium">降雨 ${data.weather.rain}</span>
+            </div>
+            <p class="text-xs text-muji-muted mt-1 leading-relaxed">${data.weather.tip}</p>
+          </div>
+        </div>
+      `;
+
+      // 2. 渲染行程卡片
+      const listContainer = document.getElementById('itinerary-list');
+      
+      // 卡片樣式對照表
+      const typeConfig = {
+        transport: {
+          border: 'border-l-4 border-l-muji-blue',
+          badgeBg: 'bg-muji-blueBg',
+          badgeText: 'text-muji-blue',
+          icon: 'car',
+          label: '交通移動'
+        },
+        food: {
+          border: 'border-l-4 border-l-muji-orange',
+          badgeBg: 'bg-muji-orangeBg',
+          badgeText: 'text-muji-orange',
+          icon: 'utensils',
+          label: '美食餐廳'
+        },
+        spot: {
+          border: 'border-l-4 border-l-muji-matcha',
+          badgeBg: 'bg-muji-matchaBg',
+          badgeText: 'text-muji-matcha',
+          icon: 'map-pin',
+          label: '景點購物'
+        }
+      };
+
+      const tagStyles = {
+        urgent: 'bg-muji-redBg text-muji-red border border-muji-red/20',
+        food: 'bg-muji-orangeBg text-muji-orange border border-muji-orange/20',
+        souvenir: 'bg-muji-matchaBg text-muji-matcha border border-muji-matcha/20',
+        spot: 'bg-muji-sand text-muji-text'
+      };
+
+      listContainer.innerHTML = `
+        <div class="flex items-center justify-between px-1 pt-1">
+          <h2 class="font-bold text-base text-muji-text">${data.title}</h2>
+          <span class="text-xs text-muji-muted">共 ${data.items.length} 個行程</span>
+        </div>
+      ` + data.items.map(item => {
+        const cfg = typeConfig[item.type] || typeConfig.spot;
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}`;
+
+        const tagsHtml = (item.tags || []).map(tag => `
+          <span class="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full ${tagStyles[tag.type] || tagStyles.spot}">
+            ${tag.text}
+          </span>
+        `).join('');
+
+        return `
+          <article class="bg-white rounded-2xl p-4 border border-muji-border ${cfg.border} shadow-xs space-y-2.5">
+            <!-- 時間與分類 + 導航按鈕 -->
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-muji-text tracking-tight">${item.time}</span>
+                <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md ${cfg.badgeBg} ${cfg.badgeText}">
+                  <i data-lucide="${cfg.icon}" class="w-3 h-3"></i>
+                  ${cfg.label}
+                </span>
+              </div>
+              <a href="${mapUrl}" target="_blank" rel="noopener noreferrer" 
+                class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-muji-bg hover:bg-muji-sand border border-muji-border text-muji-text active:scale-95 transition flex-shrink-0">
+                <i data-lucide="navigation" class="w-3 h-3 text-muji-blue"></i>
+                導航
+              </a>
+            </div>
+
+            <!-- 標題 -->
+            <h3 class="font-bold text-base text-muji-text leading-snug">${item.title}</h3>
+
+            <!-- 重點亮顯標籤 -->
+            ${tagsHtml ? `<div class="flex flex-wrap gap-1.5">${tagsHtml}</div>` : ''}
+
+            <!-- AI 導遊攻略補充 -->
+            <div class="bg-muji-bg/80 rounded-xl p-2.5 text-xs text-muji-muted leading-relaxed whitespace-pre-line border border-muji-border/60">
+              <span class="font-bold text-muji-text">💡 導遊攻略：</span>${item.guide}
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // 3. 手信清單邏輯
+    function renderSouvenirs() {
+      const container = document.getElementById('souvenir-list');
+      const completedCount = souvenirs.filter(s => s.checked).length;
+      document.getElementById('souvenir-progress').innerText = `${completedCount} / ${souvenirs.length} 已完成`;
+
+      let filtered = souvenirs;
+      if (souvenirFilter === 'urgent') {
+        filtered = souvenirs.filter(s => s.urgent);
+      } else if (souvenirFilter === 'pending') {
+        filtered = souvenirs.filter(s => !s.checked);
+      }
+
+      container.innerHTML = filtered.map(item => `
+        <div onclick="toggleSouvenir('${item.id}')" 
+          class="bg-white rounded-2xl p-4 border transition cursor-pointer flex items-start gap-3.5 ${
+            item.checked ? 'border-muji-border opacity-60 bg-muji-bg/50' : 'border-muji-border shadow-xs'
+          }">
+          <div class="mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 transition ${
+            item.checked ? 'bg-muji-matcha border-muji-matcha text-white' : 'border-gray-300 bg-white'
+          }">
+            ${item.checked ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}
+          </div>
+          <div class="flex-1 space-y-1.5">
+            <div class="flex flex-wrap items-center justify-between gap-1">
+              <h3 class="font-bold text-sm ${item.checked ? 'line-through text-muji-muted' : 'text-muji-text'}">${item.name}</h3>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                item.urgent ? 'bg-muji-redBg text-muji-red' : 'bg-muji-matchaBg text-muji-matcha'
+              }">
+                ${item.tag}
+              </span>
+            </div>
+            <p class="text-xs text-muji-muted leading-relaxed">${item.note}</p>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function toggleSouvenir(id) {
+      souvenirs = souvenirs.map(s => s.id === id ? { ...s, checked: !s.checked } : s);
+      localStorage.setItem('tw_trip_souvenirs', JSON.stringify(souvenirs));
+      renderSouvenirs();
+    }
+
+    function filterSouvenirs(type) {
+      souvenirFilter = type;
+      ['all', 'urgent', 'pending'].forEach(f => {
+        const btn = document.getElementById(`filter-${f}`);
+        if (f === type) {
+          btn.className = 'px-3 py-1.5 rounded-full font-medium bg-muji-text text-white transition';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-full font-medium bg-white border border-muji-border text-muji-muted transition';
+        }
+      });
+      renderSouvenirs();
+    }
+
+    // 4. 台中住宿自訂儲存邏輯
+    function toggleEditTaichungHotel() {
+      document.getElementById('taichung-hotel-edit').classList.toggle('hidden');
+    }
+
+    function saveTaichungHotel() {
+      const name = document.getElementById('input-tc-name').value.trim();
+      const addr = document.getElementById('input-tc-addr').value.trim();
+      if (name) {
+        localStorage.setItem('tw_trip_tc_hotel', JSON.stringify({ name, addr }));
+        loadTaichungHotel();
+      }
+      toggleEditTaichungHotel();
+    }
+
+    function loadTaichungHotel() {
+      const saved = JSON.parse(localStorage.getItem('tw_trip_tc_hotel'));
+      if (saved && saved.name) {
+        document.getElementById('tc-hotel-name').innerText = saved.name;
+        document.getElementById('tc-hotel-addr').innerText = saved.addr || '已儲存台中住宿資訊';
+        document.getElementById('input-tc-name').value = saved.name;
+        document.getElementById('input-tc-addr').value = saved.addr || '';
+      }
+    }
+
+    // 5. 記帳本邏輯
+    function renderExpenses() {
+      const list = document.getElementById('expense-list');
+      const totalTwd = expenses.reduce((sum, item) => sum + Number(item.amount), 0);
+      const totalHkd = Math.round(totalTwd / 4.1);
+
+      document.getElementById('total-twd').innerText = totalTwd.toLocaleString();
+      document.getElementById('total-hkd').innerText = totalHkd.toLocaleString();
+
+      if (expenses.length === 0) {
+        list.innerHTML = `<div class="text-center py-8 text-xs text-muji-muted bg-white rounded-2xl border border-muji-border">目前尚無消費紀錄，上方輸入即可開始記帳！</div>`;
+        return;
+      }
+
+      list.innerHTML = expenses.slice().reverse().map(item => {
+        const hkd = Math.round(item.amount / 4.1);
+        return `
+          <div class="bg-white rounded-xl p-3 border border-muji-border flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xs px-2 py-1 rounded-lg bg-muji-bg font-medium">${item.category}</span>
+              <div>
+                <div class="text-xs font-bold text-muji-text">${item.name}</div>
+                <div class="text-[10px] text-muji-muted">約 HK$ ${hkd.toLocaleString()}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-bold text-muji-text">NT$ ${Number(item.amount).toLocaleString()}</span>
+              <button onclick="deleteExpense(${item.id})" class="text-gray-400 hover:text-muji-red p-1">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function addExpense() {
+      const category = document.getElementById('expense-category').value;
+      const nameInput = document.getElementById('expense-name');
+      const amountInput = document.getElementById('expense-amount');
+
+      const name = nameInput.value.trim();
+      const amount = parseFloat(amountInput.value);
+
+      if (!name || isNaN(amount) || amount <= 0) {
+        alert('請輸入項目名稱與正確的台幣金額！');
+        return;
+      }
+
+      expenses.push({
+        id: Date.now(),
+        category,
+        name,
+        amount
+      });
+
+      localStorage.setItem('tw_trip_expenses', JSON.stringify(expenses));
+      nameInput.value = '';
+      amountInput.value = '';
+      renderExpenses();
+    }
+
+    function deleteExpense(id) {
+      expenses = expenses.filter(e => e.id !== id);
+      localStorage.setItem('tw_trip_expenses', JSON.stringify(expenses));
+      renderExpenses();
+    }
+
+    function clearExpenses() {
+      if (confirm('確定要清空所有記帳紀錄嗎？')) {
+        expenses = [];
+        localStorage.setItem('tw_trip_expenses', JSON.stringify(expenses));
+        renderExpenses();
+      }
+    }
+  </script>
+</body>
+</html>
